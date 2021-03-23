@@ -1,0 +1,38 @@
+---
+- name: Install Server Basics
+  apt:
+    pkg: ["software-properties-common", "unattended-upgrades", "ntp", "wget", "curl", "vim", "silversearcher-ag", "git", "unzip", "htop", "tmux", "pigz", "jq"]
+    state: present
+    update_cache: true
+  notify:
+    - Start NTP
+
+- name: Download awscliv2 installer.
+  unarchive:
+    src: https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip
+    dest: /tmp
+    remote_src: yes
+    creates: /tmp/aws
+    mode: 0755
+
+- name: Run the installer.
+  command:
+  args:
+    cmd: /tmp/aws/install
+    creates: /usr/local/bin/aws
+
+- name: Add Periodic Configuration
+  copy:
+    src: 10periodic
+    dest: /etc/apt/apt.conf.d/10periodic
+    owner: root
+    group: root
+
+- name: Add Unattended Upgrade Configuration
+  copy:
+    src: 50unattended-upgrades
+    dest: /etc/apt/apt.conf.d/50unattended-upgrades
+    owner: root
+    group: root
+  notify:
+   - Restart Unattended Upgrades

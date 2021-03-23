@@ -1,0 +1,72 @@
+{
+  "min_packer_version": "1.0.0",
+  "variables": {
+    "infra_name": "cloudcast",
+    "infra_env": "",
+    "aws_region": "us-east-2",
+    "aws_instance": "t3.small"
+  },
+  "builders": [
+    {
+      "type":"amazon-ebs",
+      "ami_name":"{{user `infra_name`}}-{{user `infra_env`}}-{{timestamp}}-app",
+      "instance_type":"{{user `aws_instance`}}",
+      "region":"{{user `aws_region`}}",
+      "profile": "cloudcasts",
+
+      "source_ami_filter": {
+        "filters": {
+          "architecture": "x86_64",
+          "name": "ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-*",
+          "root-device-type": "ebs",
+          "virtualization-type": "hvm"
+        },
+        "most_recent": true,
+        "owners": [
+          "099720109477"
+        ]
+      },
+
+      "ssh_username":"ubuntu",
+      "launch_block_device_mappings":[
+        {
+          "device_name":"/dev/sda1",
+          "volume_size": 8,
+          "delete_on_termination":true,
+          "encrypted":false,
+          "volume_type":"gp3",
+          "throughput": 125,
+          "iops": 3000
+        }
+      ],
+      "tags":{
+        "Name":"{{user `infra_name`}}-{{user `infra_env`}}-{{timestamp}}-app",
+        "Project":"{{user `infra_name`}}",
+        "Environment":"{{user `infra_env`}}",
+        "Role":"baked-ami",
+        "Unique":"baked-ami-{{timestamp}}",
+        "ManagedBy":"packer",
+        "Component":"app"
+      }
+    }
+  ],
+  "provisioners":[
+    {
+      "script": "{{template_dir}}/scripts/base.sh",
+      "type": "shell"
+    },
+    {
+      "type": "ansible-local",
+      "playbook_file": "ansible/app.yml",
+      "command": "echo '{{user `vault_pass`}}' | ansible-playbook",
+      "role_paths": [
+        "ansible/roles/base",
+        "ansible/roles/php",
+        "ansible/roles/nginx",
+        "ansible/roles/app"
+      ],
+      "extra_arguments": ["--vault-password-file=/bin/cat", "--extra-vars \"infra_env={{user `infra_env`}}\""],
+      "group_vars": "ansible/group_vars"
+    }
+  ]
+}

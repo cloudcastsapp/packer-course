@@ -1,0 +1,39 @@
+---
+- name: Add PHP Repository
+  apt_repository: 
+    repo: ppa:ondrej/php
+    state: present
+
+- name: Install PHP and PHP-FPM
+  apt:
+    pkg: ['php8.0-fpm','php8.0-cli','php8.0-mysql','php8.0-sqlite3','php8.0-curl','php8.0-gd','php8.0-intl','php8.0-imap','php8.0-ldap','php8.0-mbstring','php8.0-xml','php8.0-zip','php8.0-bz2','php8.0-imagick','php8.0-bcmath','php8.0-soap','php8.0-readline','php-memcached','php-msgpack','php-igbinary', 'php-redis']
+    state: present
+    update_cache: true
+
+- name: Install Composer
+  shell: curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+
+- name: Make Composer Executable
+  shell: chmod a+x /usr/local/bin/composer
+
+- name: Composer Self Update
+  shell: composer self-update
+
+- name: Add PHP-FPM PHP Configuration
+  copy:
+    src: php.ini
+    dest: /etc/php/8.0/fpm/php.ini
+    owner: root
+    group: root
+
+- name: Add PHP-FPM Pool Configuration
+  copy:
+    src: www.conf
+    dest: /etc/php/8.0/fpm/pool.d/www.conf
+    owner: root
+    group: root
+
+- name: Restart PHP-FPM
+  service:
+    name: php8.0-fpm
+    state: restarted

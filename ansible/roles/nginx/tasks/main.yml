@@ -1,0 +1,33 @@
+---
+- name: Install Nginx
+  apt:
+    name: nginx
+    state: present
+    update_cache: true
+
+- name: Stop Nginx
+  service:
+    name: nginx
+    state: stopped
+
+- name: Check if H5BP is already installed
+  stat:
+    path: /etc/nginx/h5bp
+  register: h5bp_present
+
+- name: Move Nginx directory
+  command: mv nginx nginx-original
+  args:
+    chdir: /etc
+  when: not h5bp_present.stat.exists
+
+- name: Install H5BP Nginx
+  command: git clone https://github.com/h5bp/server-configs-nginx.git nginx
+  args:
+    chdir: /etc
+  when: not h5bp_present.stat.exists
+
+- name: Start Nginx
+  service:
+    name: nginx
+    state: started
