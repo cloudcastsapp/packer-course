@@ -1,0 +1,29 @@
+---
+- name: Include the Packages for each OS
+  include_vars: "{{ ansible_os_family }}.yml"
+
+- name: Install Dependencies
+  package:
+    name: "{{ item }}"
+    state: present
+  with_items: "{{ dependencies }}"
+
+#---------------------------------------
+# Install Code Deploy
+#---------------------------------------
+- name: Gather package facts
+  package_facts:
+    manager: auto
+
+- name: Install Code Deploy Agent
+  block:
+    - name: Fetch the CodeDeploy install script
+      get_url:
+        url: "https://aws-codedeploy-{{ ansible_ec2_placement_region }}.s3.{{ ansible_ec2_placement_region }}.amazonaws.com/latest/install"
+        dest: /tmp/codedeploy-install
+        mode: 0700
+
+    - name: Run the installation script
+      become: true
+      command: /tmp/codedeploy-install auto
+  when: "'codedeploy-agent' not in ansible_facts.packages"

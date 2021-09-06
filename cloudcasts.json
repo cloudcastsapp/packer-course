@@ -61,14 +61,14 @@
       "command": "echo '{{user `vault_pass`}}' | ansible-playbook",
       "role_paths": [
         "ansible/roles/base",
+        "ansible/roles/austincloudguru.codedeploy-agent",
         "ansible/roles/user",
         "ansible/roles/php",
         "ansible/roles/nginx",
         "ansible/roles/queue",
         "ansible/roles/app"
-
       ],
-      "extra_arguments": ["--vault-password-file=/bin/cat", "--extra-vars \"infra_env={{user `infra_env`}}\""],
+      "extra_arguments": ["--vault-password-file=/bin/cat", "--extra-vars \"infra_env={{user `infra_env`}} ansible_ec2_placement_region={{user `aws_region`}}\""],
       "group_vars": "ansible/group_vars"
     }
   ]

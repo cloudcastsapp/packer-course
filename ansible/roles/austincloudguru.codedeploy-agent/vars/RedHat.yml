@@ -1,0 +1,6 @@
+---
+dependencies:
+  - ruby
+  - wget
+
+service_name: codedeploy-agent.service

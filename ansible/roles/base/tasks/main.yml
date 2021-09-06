@@ -1,7 +1,7 @@
 ---
 - name: Install Server Basics
   apt:
-    pkg: ["software-properties-common", "unattended-upgrades", "ntp", "wget", "curl", "vim", "silversearcher-ag", "git", "unzip", "htop", "tmux", "pigz", "jq"]
+    pkg: ["software-properties-common", "unattended-upgrades", "ntp", "wget", "curl", "vim", "silversearcher-ag", "git", "unzip", "htop", "tmux", "pigz", "jq", "ruby-full"]
     state: present
     update_cache: true
   notify:
