@@ -6,6 +6,8 @@
   become_method: sudo
   roles:
     - base
+    - user
     - php
     - nginx
+    - queue
     - app

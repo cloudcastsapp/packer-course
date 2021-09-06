@@ -1,0 +1,19 @@
+---
+- name: Install Supervisor
+  apt:
+    pkg: ['supervisor']
+    state: present
+    update_cache: true
+
+- name: Stop and disable supervisor
+  systemd:
+    name: supervisor
+    state: stopped
+    enabled: no
+
+- name: Add cloudcasts queue configuration
+  copy:
+    src: cloudcasts.conf
+    dest: /etc/supervisor/conf.d/cloudcasts.conf
+    owner: root
+    group: root

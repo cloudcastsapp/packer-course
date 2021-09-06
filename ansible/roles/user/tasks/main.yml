@@ -1,0 +1,47 @@
+---
+- name: Create CloudCasts User
+  user:
+    name: cloudcasts
+    password: '{{ cloudcasts_user_password }}'
+    groups: sudo
+    append: yes
+    shell: /bin/bash
+
+- name: Create .ssh dir
+  file:
+    path: /home/cloudcasts/.ssh
+    state: directory
+    owner: cloudcasts
+    group: cloudcasts
+
+- name: Add Github deploy key
+  copy:
+    content: '{{ deploy_key }}'
+    dest: /home/cloudcasts/.ssh/id_rsa
+    owner: cloudcasts
+    group: cloudcasts
+    mode: "u=r,go-rwx"
+
+# Ensure github is in known hosts file, with idempotence
+- name: Make sure the known hosts file exists
+  file:
+    path: /home/cloudcasts/.ssh/known_hosts
+    state: touch
+    owner: cloudcasts
+    group: cloudcasts
+
+- name: Check to see if github exists in known hosts
+  shell: "ssh-keygen -f /home/cloudcasts/.ssh/known_hosts -F github.com"
+  register: ssh_known_host_results
+  ignore_errors: yes
+
+- name: Add to known hosts, if needed
+  shell: "ssh-keyscan -T 5 github.com > /home/cloudcasts/.ssh/known_hosts"
+  when: ssh_known_host_results.stdout == ""
+
+- name: Create worker log directory for user cloudcasts
+  file:
+    path: /var/log/cloudcasts
+    owner: cloudcasts
+    group: adm
+    state: directory

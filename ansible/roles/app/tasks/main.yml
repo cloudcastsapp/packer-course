@@ -1,24 +1,24 @@
 ---
 - name: Ensure app dir exists
   file:
-    path: /var/www/cloudcasts.io
+    path: /home/cloudcasts/cloudcasts.io
     state: directory
-    owner: www-data
-    group: www-data
+    owner: cloudcasts
+    group: cloudcasts
 
 - name: Ensure web root exists
   file:
-    path: /var/www/cloudcasts.io/public
+    path: /home/cloudcasts/cloudcasts.io/public
     state: directory
-    owner: www-data
-    group: www-data
+    owner: cloudcasts
+    group: cloudcasts
 
 - name: Add PHP file
   copy:
     src: index.php
-    dest: /var/www/cloudcasts.io/public/index.php
-    owner: www-data
-    group: www-data
+    dest: /home/cloudcasts/cloudcasts.io/public/index.php
+    owner: cloudcasts
+    group: cloudcasts
 
 - name: Remove default Nginx configurations
   command: rm -rf nginx/conf.d/.default.conf && rm -rf nginx/conf.d/no-ssl.default.conf

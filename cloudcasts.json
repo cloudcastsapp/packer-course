@@ -61,9 +61,12 @@
       "command": "echo '{{user `vault_pass`}}' | ansible-playbook",
       "role_paths": [
         "ansible/roles/base",
+        "ansible/roles/user",
         "ansible/roles/php",
         "ansible/roles/nginx",
+        "ansible/roles/queue",
         "ansible/roles/app"
+
       ],
       "extra_arguments": ["--vault-password-file=/bin/cat", "--extra-vars \"infra_env={{user `infra_env`}}\""],
       "group_vars": "ansible/group_vars"
